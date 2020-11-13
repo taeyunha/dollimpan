@@ -47,6 +47,7 @@ export default {
       panDegree: 0,
       speed: 5, //초
       rolling: 2,
+      timeout: -1
     }
   },
   watch: {
@@ -75,7 +76,8 @@ export default {
     handleClickRoll() {
       console.debug('roll click')
       const result = this.roll()
-      window.setTimeout(
+      window.clearTimeout(this.timeout)
+      this.timeout = window.setTimeout(
           this.showResult,
           this.speed * 1000,
           result
@@ -152,7 +154,7 @@ export default {
     position:relative;
     overflow:hidden;
 
-    box-shadow: 0 0 15px black;
+    box-shadow: 0 0 10px 5px black;
     display:flex;
     justify-content: center;
 

@@ -6,11 +6,12 @@
             v-model="items"
         ></dollimpan>
       </v-col>
-      <v-col>
+      <v-col cols="3">
         <v-textarea
             v-model="input"
-            solo></v-textarea>
-        <v-btn @click="handleClickGenerate">생성!!</v-btn>
+            solo
+            @input="generate"
+        ></v-textarea>
       </v-col>
     </v-row>
   </v-app>
@@ -27,10 +28,13 @@ export default {
 
   data: () => ({
     items: [],
-    input: ''
+    input: '0\n1\n2\n3\n4\n5\n6\n7\n8\n9'
   }),
+  mounted () {
+    this.generate()
+  },
   methods: {
-    handleClickGenerate(){
+    generate(){
       this.items = this.input.split('\n').map(value => ({value}))
       // {value: }
       console.debug(this.items)

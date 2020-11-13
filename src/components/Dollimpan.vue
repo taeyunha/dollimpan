@@ -1,9 +1,15 @@
 <template>
   <div class="dollimpan">
     <h1>행운의 돌림판</h1>
+    <h6>(돌림판을 마우스로 돌려보세요)</h6>
     <div class="arrow"></div>
     <div class="pan"
-         :style="`transform: rotate(${panDegree}deg); transition-duration: ${speed}s`"
+         ref="pan"
+         :style="`transform: rotate(${panDegree}deg); transition-duration: ${grab ? 0 : speed}s`"
+         @mousedown="handleMouseDown"
+         @mousemove="handleMouseMove"
+         @mouseup="handleLeave"
+         @mouseleave="handleLeave"
     >
       <div
           v-for="(item,index) in items" :key="index"
@@ -41,13 +47,16 @@ export default {
   },
   data() {
     return {
-      radian: (degree) => degree * Math.PI / 180,
+      toRadian: (degree) => degree * Math.PI / 180,
+      toDegree: (radian) => radian / (Math.PI / 180),
       items: this.value,
       unit : 0,
       panDegree: 0,
       speed: 5, //초
       rolling: 2,
-      timeout: -1
+      timeout: -1,
+      grab: false,
+      grabStart: null
     }
   },
   watch: {
@@ -60,35 +69,93 @@ export default {
     this.spreadItem();
   },
   methods: {
-    showResult(result){
-      this.$alert(result.value)
+    calculateDelta(e){
+      const {left,top,width,height} = this.$refs.pan.getBoundingClientRect()
+      const O = {x: left+width/2, y: top+height/2}
+      const {clientX:sx, clientY:sy} = this.grabStart
+      const {clientX:ex, clientY:ey} = e
+      const originVector = this.makeVector({x: sx - O.x, y: sy - O.y})
+      const newVector = this.makeVector({x: ex - O.x, y: ey - O.y})
+      return (originVector.theta - newVector.theta) * (O.y > ey ? 1 : -1 )
     },
-    roll() {
-      this.panDegree += Math.random() * 360 + 360 * this.rolling // 0 ~ 0.99999 === 0 ~ 359.9999
+    makeVector({x,y}) {
+      const scalar = Math.sqrt(Math.pow(x,2) + Math.pow(y,2))
+      const theta = this.toDegree(Math.acos(x/ scalar))
+      return {
+        x,y,scalar,theta
+      }
+    },
+    handleMouseMove(e){
+      if(this.grab){
+        this.panDegree += this.calculateDelta(e)
 
-      const resDeg = 360 - (this.panDegree % 360)
+        const {clientX:ex, clientY:ey} = e
+        this.grabStart = {...this.grabStart, clientX:ex, clientY:ey, time: new Date().getTime()}
+        //console.debug(distance)
+        this.$forceUpdate()
+      }
+    },
+    handleLeave(e){
+      if(this.grab && this.grabStart){
+        const {time: st} = this.grabStart
+
+        const time = new Date().getTime() - st
+        const delta = this.calculateDelta(e)
+
+        this.grab = false
+        this.grabStart = null
+        const velocity = delta/time
+        if(velocity !== 0){
+          const result = this.roll(velocity * this.speed * 1000)
+          this.showResult(result)
+        }
+        console.debug('leave', time, delta, velocity)
+      }
+
+    },
+    handleMouseDown(e){
+      const {clientX, clientY} = e
+      this.grab = true
+      this.grabStart = {clientX, clientY, time: new Date().getTime()}
+      window.clearTimeout(this.timeout)
+
+    },
+    showResult(result){
+      window.clearTimeout(this.timeout)
+      this.timeout = window.setTimeout(
+          () => {
+            this.$alert(result.value)
+          },
+          this.speed * 1000
+      )
+    },
+    calculateResult () {
+      let resDeg = (this.panDegree % 360)
+      resDeg < 0 && (resDeg += 360)
+      resDeg = 360 - resDeg
       return this.items.find((item) => {
         const start = item.degree
         const end = item.degree + this.unit
         return resDeg >= start && resDeg < end
       })
     },
+    roll(addDegree) {
+      addDegree = addDegree || Math.random() * 360 + 360 * this.rolling
+      console.debug('roll', addDegree)
+      this.panDegree +=  addDegree
+      return this.calculateResult()
+    },
     handleClickRoll() {
       console.debug('roll click')
       const result = this.roll()
-      window.clearTimeout(this.timeout)
-      this.timeout = window.setTimeout(
-          this.showResult,
-          this.speed * 1000,
-          result
-      )
+      this.showResult(result)
     },
     spreadItem(){
       const items = this.items
       const unit = 360 / items.length
       this.unit = unit
 
-      const tan90m$d2 = Math.tan(this.radian(90 - unit/2))// tan(90-@/2)
+      const tan90m$d2 = Math.tan(this.toRadian(90 - unit/2))// tan(90-@/2)
       const colorUnit = 255 * 5 / (items.length-1)
       items.forEach((item,index) => {
         item.degree = unit * index
@@ -148,6 +215,7 @@ export default {
   }
 
   .pan{
+    user-select: none;
     height: 50vh;
     width: 50vh;
     border-radius: 25vh;
@@ -159,6 +227,13 @@ export default {
     justify-content: center;
 
     transition: transform cubic-bezier(.18,.55,.35,1); // speed 필요함
+
+    cursor: move;
+    cursor: grab;
+
+    &:active{
+      cursor: grabbing;
+    }
   }
 
   .arrow{

@@ -13,7 +13,7 @@
         <div class="background"
              :style="`border-top-color: ${item.color || 'none'}; border-width: ${item.width}vh;`"
         ></div>
-        {{item.value}}
+        <span class="value">{{item.value}}</span>
         <div class="line"
              :style="`transform: rotate(${unit / 2}deg);`"
         ></div>
@@ -118,13 +118,16 @@ export default {
     position:absolute;
     transform-origin: bottom;
     height:50%;
-    font-size:3.5vh;
     display:flex;
     justify-content: center;
+    align-items: center;
 
-    color: white;
-    text-shadow: 0 0 5px black;
-
+    .value{
+      font-size:3.5vh;
+      color: white;
+      text-shadow: 0 0 5px black;
+      margin-top: -3.5vh;
+    }
     .background {
       position:absolute;
       z-index: -1;

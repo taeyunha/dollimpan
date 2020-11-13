@@ -46,7 +46,7 @@ export default {
       unit : 0,
       panDegree: 0,
       speed: 5, //초
-      rolling: 1,
+      rolling: 2,
     }
   },
   watch: {
@@ -156,7 +156,7 @@ export default {
     display:flex;
     justify-content: center;
 
-    transition: transform cubic-bezier(.1,.1,0,1); // speed 필요함
+    transition: transform cubic-bezier(.18,.55,.35,1); // speed 필요함
   }
 
   .arrow{

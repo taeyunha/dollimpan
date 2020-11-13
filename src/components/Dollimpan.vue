@@ -26,7 +26,7 @@
         >돌려!</v-btn>
       </v-row>
       <v-row>
-        <v-text-field hide-details label="시간" v-model="speed" type="number" min="1"></v-text-field>
+        <v-text-field hide-details label="시간(초)" v-model="speed" type="number" min="1"></v-text-field>
         <v-text-field hide-details label="회전수" v-model="rolling" type="number" min="0"></v-text-field>
       </v-row>
     </div>
@@ -45,8 +45,8 @@ export default {
       items: this.value,
       unit : 0,
       panDegree: 0,
-      speed: 1, //초
-      rolling: 2,
+      speed: 5, //초
+      rolling: 1,
     }
   },
   watch: {
@@ -156,7 +156,7 @@ export default {
     display:flex;
     justify-content: center;
 
-    transition: transform ease-out; // speed 필요함
+    transition: transform cubic-bezier(.1,.1,0,1); // speed 필요함
   }
 
   .arrow{

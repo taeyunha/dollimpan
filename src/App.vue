@@ -25,7 +25,9 @@
         <v-textarea
             v-model="input"
             solo
+            @change="input = input.trim()"
         ></v-textarea>
+        <v-btn @click="shuffle">셔플</v-btn>
         <v-btn @click="generate">생성</v-btn>
       </v-col>
     </v-row>
@@ -54,6 +56,15 @@ export default {
     this.generate()
   },
   methods: {
+    shuffle() {
+      const input = this.input.split('\n')
+      const shuffled = []
+      for(; input.length;){
+        console.debug(input.length)
+        shuffled.push(...input.splice(parseInt(Math.random()*input.length),1))
+      }
+      this.input = shuffled.join('\n')
+    },
     handleRangeChange(){
       const newInput = []
       for(let i = this.range[0]; i <= this.range[1]; i++){

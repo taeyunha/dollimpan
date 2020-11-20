@@ -4,18 +4,20 @@
       <v-col>
         <dollimpan
             v-model="items"
-            :speed="speed"
-            :rolling="rolling"
+            :speed="parseInt(speed)"
+            :rolling="parseInt(rolling)"
             :pan-size="panSize"
             :font-size="fontSize"
         ></dollimpan>
       </v-col>
-      <v-col cols="3">
-        <v-row>
+      <v-col cols="auto" class="settings">
+        <h1>행운의 돌림판</h1>
+        <h6>(돌림판을 마우스로 돌려보세요)</h6>
+        <v-row no-gutters>
           <v-text-field hide-details label="시간(초)" v-model="speed" type="number" min="1"></v-text-field>
           <v-text-field hide-details label="회전수" v-model="rolling" type="number" min="0"></v-text-field>
         </v-row>
-        <v-slider v-model="panSize" label="판 크기"></v-slider>
+        <v-slider v-model="panSize" label="판 크기" max="85"></v-slider>
         <v-slider v-model="fontSize" label="글자 크기" max="10"></v-slider>
         <v-row no-gutters align="center">
           <v-col><v-text-field v-model="range[0]" type="number" @change="handleRangeChange"></v-text-field></v-col>
@@ -33,6 +35,18 @@
     </v-row>
   </v-app>
 </template>
+
+<style lang="scss">
+html{
+  overflow: hidden;
+}
+  #app{
+    overflow:hidden;
+  }
+  .settings{
+    padding-right:100px !important;
+  }
+</style>
 
 <script>
 import Dollimpan from "@/components/Dollimpan";

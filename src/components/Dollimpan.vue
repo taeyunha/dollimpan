@@ -171,6 +171,7 @@ export default {
       addDegree = addDegree || Math.random() * 360 + 360 * this.rolling
       console.debug('roll', addDegree)
       this.panDegree += addDegree
+      window.clearInterval(this.interval)
       this.interval = window.setInterval(() => {
         const degree = this.getRotationAngle(this.$refs.pan)
         this.currentItem = this.calculateResult(degree)

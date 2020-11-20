@@ -5,21 +5,21 @@
     <div class="arrow"></div>
     <div class="pan"
          ref="pan"
-         :style="`transform: rotate(${panDegree}deg); transition-duration: ${grab ? 0 : speed}s`"
+         :style="`transform: rotate(${panDegree}deg); transition-duration: ${grab ? 0 : speed}s; height: ${panSize}vh; width: ${panSize}vh;`"
          @mousedown="handleMouseDown"
          @mousemove="handleMouseMove"
          @mouseup="handleLeave"
          @mouseleave="handleLeave"
     >
       <div
-          v-for="(item,index) in items" :key="index"
+          v-for="(item) in items" :key="item.key"
           class="item"
           :style="`transform: rotate(${item.degree + unit / 2}deg)`"
       >
         <div class="background"
-             :style="`border-top-color: ${item.color || 'none'}; border-width: ${item.width}vh;`"
+             :style="`border-top-color: ${item.color || 'none'}; border-width: ${backgroundWidth}vh; border-top-width: ${panSize/2}vh;`"
         ></div>
-        <span class="value">{{item.value}}</span>
+        <span class="value" :style="`font-size:${fontSize}vh;`">{{item.value}}</span>
         <div class="line"
              :style="`transform: rotate(${unit / 2}deg);`"
         ></div>
@@ -31,10 +31,6 @@
             @click="handleClickRoll"
         >돌려!</v-btn>
       </v-row>
-      <v-row>
-        <v-text-field hide-details label="시간(초)" v-model="speed" type="number" min="1"></v-text-field>
-        <v-text-field hide-details label="회전수" v-model="rolling" type="number" min="0"></v-text-field>
-      </v-row>
     </div>
   </div>
 </template>
@@ -43,7 +39,11 @@
 export default {
   name: "Dollimpan",
   props: {
-    value: Array
+    value: Array,
+    panSize: Number,
+    fontSize: Number,
+    speed: Number,
+    rolling: Number
   },
   data() {
     return {
@@ -52,17 +52,21 @@ export default {
       items: this.value,
       unit : 0,
       panDegree: 0,
-      speed: 5, //초
-      rolling: 2,
+
       timeout: -1,
       grab: false,
-      grabStart: null
+      grabStart: null,
+
+      backgroundWidth: 1,
     }
   },
   watch: {
     value (val) {
       this.items = val
       this.spreadItem();
+    },
+    panSize () {
+      this.spreadItem()
     }
   },
   mounted () {
@@ -156,6 +160,8 @@ export default {
       this.unit = unit
 
       const tan90m$d2 = Math.tan(this.toRadian(90 - unit/2))// tan(90-@/2)
+      const size = (this.panSize/2)
+      this.backgroundWidth = size/tan90m$d2
       const colorUnit = 255 * 5 / (items.length-1)
       items.forEach((item,index) => {
         item.degree = unit * index
@@ -165,8 +171,7 @@ export default {
         const B = Math.min(255,Math.max(x - 255*2, 0))
         item.color = `rgba(${R},${G},${B},0.8)`
 
-
-        item.width = 25/tan90m$d2
+        item.key = Math.floor(Math.random()*100) + `${item.degree}`
       })
       this.$forceUpdate()
     }
@@ -189,19 +194,16 @@ export default {
     height:50%;
     display:flex;
     justify-content: center;
-    align-items: center;
 
     .value{
-      font-size:3.5vh;
       color: white;
       text-shadow: 0 0 5px black;
-      margin-top: -3.5vh;
+      margin-top: 5px;
     }
     .background {
       position:absolute;
       z-index: -1;
       border-style: solid;
-      border-top-width: 25vh !important;
       border-bottom-width: 0 !important;
       border-color: transparent;
     }
@@ -216,9 +218,7 @@ export default {
 
   .pan{
     user-select: none;
-    height: 50vh;
-    width: 50vh;
-    border-radius: 25vh;
+    border-radius: 100vh;
     position:relative;
     overflow:hidden;
 

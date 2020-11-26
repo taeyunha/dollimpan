@@ -23,7 +23,7 @@
         <div class="background"
              :style="`border-top-color: ${item.color || 'none'}; border-width: ${backgroundWidth}vh; border-top-width: ${panSize/2}vh;`"
         ></div>
-        <span class="value" :style="`font-size:${fontSize}vh; width: ${backgroundWidth*1.5}vh`">{{ item.value }}</span>
+        <span class="value" :style="`font-size:${fontSize}vh; width: ${backgroundWidth*2}vh`">{{ item.value }}</span>
         <div class="line"
              :style="`transform: rotate(${unit / 2}deg);`"
         ></div>
@@ -242,6 +242,7 @@ export default {
       white-space: pre-line;
       word-break: break-all;
       line-height: 1.2;
+      text-align: center;
       width: 100%;
     }
 

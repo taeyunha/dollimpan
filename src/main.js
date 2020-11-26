@@ -6,6 +6,7 @@ Vue.config.productionTip = false
 
 //Plugins
 import './plugins/vuesimplealert'
+import './plugins/dayjs'
 
 new Vue({
   vuetify,

@@ -153,6 +153,7 @@ export default {
             this.$alert(result.value)
             window.clearInterval(this.interval)
             this.currentItem = result
+            this.$emit('done', result)
           },
           this.speed * 1000
       )
